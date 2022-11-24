@@ -6,59 +6,176 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-
+/**ãƒ†ãƒˆãƒªã‚¹ã®ã‚³ãƒ³ãƒ†ãƒ³ãƒ„ã‚’è¡¨ç¤ºã™ã‚‹ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆ*/
 public class Tetris extends JPanel {
-
+	/**å‚ç…§ã•ã‚Œã¾ã›ã‚“*/
 	private static final long serialVersionUID = -807909536278284335L;
 	private static final int BlockSize = 10;
+	/**ãƒ—ãƒ¬ã‚¤ç”»é¢ã®ãƒ–ãƒ­ãƒƒã‚¯ã‚’ç©ã¿ä¸Šã’ã‚‹éƒ¨åˆ†ã®å¹…*/
 	private static final int BlockWidth = 16;
+	/**ãƒ—ãƒ¬ã‚¤ç”»é¢ã®ãƒ–ãƒ­ãƒƒã‚¯ã‚’ç©ã¿ä¸Šã’ã‚‹éƒ¨åˆ†ã®é«˜ã•*/
 	private static final int BlockHeigth = 26;
-	private static final int TimeDelay = 1000;
-
+	//é †ä½ã®ç®¡ç†
+	static String zyuni="";
+	/**ç”»é¢ã®æ›´æ–°é »åº¦*/
+	private static final int TimeDelay = 100;
+	/**æ¬¡ã®ãƒ–ãƒ­ãƒƒã‚¯ä¸‹ã«è¡¨ç¤ºã•ã‚Œã‚‹è‘—ä½œè€…æƒ…å ±*/
 	private static final String[] AuthorInfo = {
-			"ÖÆ×÷ÈË£º","HelloClyde"
+			"Â©","HelloClydeã¨å‚å³¶"
 	};
 
-	// ´æ·ÅÒÑ¾­¹Ì¶¨µÄ·½¿é
+	/**ãƒ—ãƒ¬ã‚¤ç”»é¢ã®ãƒ‰ãƒƒãƒˆã‚’ç®¡ç†ã™ã‚‹é…åˆ—*/
 	private boolean[][] BlockMap = new boolean[BlockHeigth][BlockWidth];
 
-	// ·ÖÊı
+	/**ã‚¹ã‚³ã‚¢*/
 	private int Score = 0;
-	
-	//ÊÇ·ñÔİÍ£
+
+	/**ä¸­æ–­ã—ã¦ã„ã‚‹ã‹å¦ã‹*/
 	private boolean IsPause = false;
 
-	// 7ÖÖĞÎ×´
+	/**ãƒ–ãƒ­ãƒƒã‚¯ã®å½¢x,yãŒå…¥ã£ãŸé…åˆ—[[[bool...],[bool...]]]*/
 	static boolean[][][] Shape = BlockV4.Shape;
 
-	// ÏÂÂä·½¿éµÄÎ»ÖÃ,×óÉÏ½Ç×ø±ê
+	/**ä»Šã®ãƒ–ãƒ­ãƒƒã‚¯ã®ä½ç½®*/
 	private Point NowBlockPos;
 
-	// µ±Ç°·½¿é¾ØÕó
+	/**ä»Šã®ãƒ–ãƒ­ãƒƒã‚¯ã®x,yé…åˆ—*/
 	private boolean[][] NowBlockMap;
-	// ÏÂÒ»¸ö·½¿é¾ØÕó
+	/**æ¬¡ã®ãƒ–ãƒ­ãƒƒã‚¯ã®x,yé…åˆ—*/
 	private boolean[][] NextBlockMap;
 	/**
-	 * ·¶Î§[0,28) 7ÖÖ£¬Ã¿ÖÖÓĞ4ÖÖĞı×ª×´Ì¬£¬¹²4*7=28 %4»ñÈ¡Ğı×ª×´Ì¬ /4»ñÈ¡ĞÎ×´
+	 *ãƒ–ãƒ­ãƒƒã‚¯ã®å‘ãæƒ…å ±
 	 */
 	private int NextBlockState;
+	private int offset=0;
 	private int NowBlockState;
-	
-	//¼ÆÊ±Æ÷
+
+	/*ã‚¿ã‚¤ãƒãƒ¼ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹ãƒ»ä¸­æ–­ã—ãŸã‚Šã™ã‚‹ãŸã‚ã«ã“ã®ã‚¹ã‚³ãƒ¼ãƒ—ã§å®£è¨€ã™ã‚‹å¿…è¦ãŒã‚ã‚‹ã‚ˆã†ã */
 	private Timer timer;
 
-	public Tetris() {
-		// TODO ×Ô¶¯Éú³ÉµÄ¹¹Ôìº¯Êı´æ¸ù
+	/*å°ã„ãŸæœ€é©è§£*/
+	Point point;
+	/*å°ã„ãŸæ‰‹é †ã‚’é †ç•ªã«å®Ÿè¡Œã™ã‚‹ãŸã‚ã®ã‚¤ãƒ³ãƒ‡ãƒƒã‚¯ã‚¹*/
+	Point controllIndex=new Point();
+	/**ç›¤é¢ã‚’è©•ä¾¡ã™ã‚‹ãŸã‚ã®è©•ä¾¡é–¢æ•°
+	 * ä¸Šã«è¡Œãã»ã©æ¸›ç‚¹ã‚’é«˜ãã™ã‚‹ã€‚*/
+	int analyze(boolean BlockMap[][]) {
+		int score=BlockMap.length*BlockMap[0].length;
+		for(int i=0;i<BlockMap.length;i++) {
+			for(int a=0;a<BlockMap[i].length;a++) {
+				if(BlockMap[i][a]) {
+					score-=(BlockMap.length-i);
+				}
+			}
+		}
+		return score;
+	}
+	Point find() {
+		int max=-(BlockMap.length*BlockMap[0].length*BlockMap.length);
+		int max_x=0;
+		int update=0;
+		int max_y=0;
+		for(int i=CalNewBlockInitPos().x;i<BlockMap[i].length;i++){//å·¦ç«¯ã‹ã‚‰å³ç«¯
+			for(int a=1;a<4;a++) {
+				boolean[][] _shape = copy2d(NowBlockMap);
+				_shape=RotateBlock(_shape, a);
+				int j=0;
+				boolean[][] _BlockMap =copy2d(BlockMap);
+				if(!IsTouch(_shape, new Point(i,0))) {
+					
+					for(;!IsTouch(_shape,new Point(i,j+1));j++);
+					FixBlock(_BlockMap,_shape,new Point(i,j));
+					int score=analyze(_BlockMap);
+					System.out.println(max+"/"+(BlockMap.length*BlockMap[0].length));
+					if(max<score) {
+						max=score;
+						max_x=i;
+						max_y=a;
+						update++;
+						//System.out.println("ææ¡ˆ");
+						//ShowMap(_BlockMap);
+					}
+				}
+			}
+		}
+		controllIndex=new Point(0,0);
+		if(update==0) {
+			System.out.println(max+"/"+(BlockMap.length*BlockMap[0].length));
+			ShowMap(NowBlockMap);
+			ShowMap(BlockMap);
+		}
+		return new Point(max_x,max_y);
+	}
+	public Tetris(int offset) {
+
+		this.setBackground(Color.orange);
+		this.setSize(300,500);
+		this.offset=offset;
+		/***/
 		this.Initial();
+		/**æç”»ã”ã¨ã«ã‚¢ã‚¯ã‚·ãƒ§ãƒ³ã‚¤ãƒ™ãƒ³ãƒˆã‚’ç”Ÿæˆã™ã‚‹*/
 		timer = new Timer(Tetris.TimeDelay, this.TimerListener);
 		timer.start();
-		this.addKeyListener(this.KeyListener);
+		Thread th=new Thread() {
+			@Override
+			public void run() {
+				Point DesPoint;
+				for(;;) {
+					if(!IsPause) {
+						while(controllIndex.x<point.x||controllIndex.y<point.y) {
+							if(controllIndex.x<point.x) {
+								controllIndex.x++;
+								System.out.print("â†’");
+								DesPoint = new Point(Tetris.this.NowBlockPos.x + 1, Tetris.this.NowBlockPos.y);
+								if (!Tetris.this.IsTouch(Tetris.this.NowBlockMap, DesPoint)){
+									Tetris.this.NowBlockPos = DesPoint;
+								}
+							}
+							if(controllIndex.y<point.y) {
+								controllIndex.y++;
+								System.out.print("ğŸŒ€");
+								boolean[][] TurnBlock = Tetris.this.RotateBlock(Tetris.this.NowBlockMap,1);
+								if (!Tetris.this.IsTouch(TurnBlock, Tetris.this.NowBlockPos)){
+									Tetris.this.NowBlockMap = TurnBlock;
+								}
+								
+							}
+							try {
+								Thread.sleep(10);
+							} catch (InterruptedException e) {
+								// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸ catch ãƒ–ãƒ­ãƒƒã‚¯
+								e.printStackTrace();
+							}
+						}
+						DesPoint = new Point(Tetris.this.NowBlockPos.x, Tetris.this.NowBlockPos.y + 1);
+						if (!Tetris.this.IsTouch(Tetris.this.NowBlockMap, DesPoint)){
+							Tetris.this.NowBlockPos = DesPoint;
+						}
+					}
+					//System.out.println(Tetris.this.NowBlockPos);
+					repaint();
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸ catch ãƒ–ãƒ­ãƒƒã‚¯
+						e.printStackTrace();
+					}
+
+				}
+			}
+		};
+		th.start();
+		//this.addKeyListener(this.KeyListener);
 	}
-	
+
 	public void SetMode(String mode){
 		if (mode.equals("v6")){
 			Tetris.Shape = BlockV6.Shape;
@@ -71,21 +188,24 @@ public class Tetris extends JPanel {
 	}
 
 	/**
-	 * ĞÂµÄ·½¿éÂäÏÂÊ±µÄ³õÊ¼»¯
+	 *	æ¬¡ã®ãƒ–ãƒ­ãƒƒã‚¯ã‚’ç”Ÿæˆã¨ç™»éŒ²ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
 	 */
 	private void getNextBlock() {
-		// ½«ÒÑ¾­Éú³ÉºÃµÄÏÂÒ»´Î·½¿é¸³¸øµ±Ç°·½¿é
+
 		this.NowBlockState = this.NextBlockState;
 		this.NowBlockMap = this.NextBlockMap;
-		// ÔÙ´ÎÉú³ÉÏÂÒ»´Î·½¿é
 		this.NextBlockState = this.CreateNewBlockState();
 		this.NextBlockMap = this.getBlockMap(NextBlockState);
-		// ¼ÆËã·½¿éÎ»ÖÃ
 		this.NowBlockPos = this.CalNewBlockInitPos();
+		System.out.println("nextShape");
+		ShowMap(NowBlockMap);
+		point=find();
+		System.out.println("point");
+		System.out.println(point);
 	}
-	
+
 	/**
-	 * ÅĞ¶ÏÕıÔÚÏÂÂäµÄ·½¿éºÍÇ½¡¢ÒÑ¾­¹Ì¶¨µÄ·½¿éÊÇ·ñÓĞ½Ó´¥
+	 *å£ã«ã¶ã¤ã‹ã‚‹ã‹ã©ã†ã‹æ¤œæŸ»ã™ã‚‹
 	 * @return
 	 */
 	private boolean IsTouch(boolean[][] SrcNextBlockMap,Point SrcNextBlockPos) {
@@ -110,53 +230,61 @@ public class Tetris extends JPanel {
 		}
 		return false;
 	}
-	
+
 	/**
-	 * ¹Ì¶¨·½¿éµ½µØÍ¼
+	 * ãƒ–ãƒ­ãƒƒã‚¯ã®å›ºå®š
 	 */
-	private boolean FixBlock(){
-		for (int i = 0;i < this.NowBlockMap.length;i ++){
-			for (int j = 0;j < this.NowBlockMap[i].length;j ++){
-				if (this.NowBlockMap[i][j])
-					if (this.NowBlockPos.y + i < 0)
+	private boolean FixBlock(boolean[][] BlockMap,boolean[][] NowBlockMap,Point NowBlockPos){
+		for (int i = 0;i < NowBlockMap.length;i ++){
+			for (int j = 0;j <NowBlockMap[i].length;j ++){
+				if (NowBlockMap[i][j])
+					if (NowBlockPos.y + i < 0)
 						return false;
 					else
-						this.BlockMap[this.NowBlockPos.y + i][this.NowBlockPos.x + j] = this.NowBlockMap[i][j];
+						BlockMap[NowBlockPos.y + i][NowBlockPos.x + j] = NowBlockMap[i][j];
 			}
 		}
 		return true;
 	}
-	
+
 	/**
-	 * ¼ÆËãĞÂ´´½¨µÄ·½¿éµÄ³õÊ¼Î»ÖÃ
-	 * @return ·µ»Ø×ø±ê
+	 * ãƒ–ãƒ­ãƒƒã‚¯ã®ä¸­å¿ƒã‚’æ±‚ã‚ã‚‹ã€‚
+	 * @return ä¸­å¿ƒã®Point
 	 */
 	private Point CalNewBlockInitPos(){
-		return new Point(Tetris.BlockWidth / 2 - this.NowBlockMap[0].length / 2, - this.NowBlockMap.length);
+		return new Point(/*Tetris.BlockWidth / 2 -this.NowBlockMap[0].length / 2*/ 0, - this.NowBlockMap.length);
 	}
 
 	/**
-	 * ³õÊ¼»¯
-	 */
+	 * ã‚²ãƒ¼ãƒ ã®é–‹å§‹*/
 	public void Initial() {
-		//Çå¿ÕMap
+		//System.out.println("initial");
+		/**è¡¨ç¤ºã•ã‚Œã‚‹ç©ã¿ã‚ãŒã¦ã„ã‚‹å¯èƒ½æ€§ã®ã‚ã‚‹ãƒ–ãƒ­ãƒƒã‚¯ã®é…åˆ—ã‚’ã‚¯ãƒªã‚¢*/
 		for (int i = 0;i < this.BlockMap.length;i ++){
 			for (int j = 0;j < this.BlockMap[i].length;j ++){
 				this.BlockMap[i][j] = false;
 			}
 		}
-		//Çå¿Õ·ÖÊı
+		//ã‚¹ã‚³ã‚¢ã®åˆæœŸåŒ–
 		this.Score = 0;
-		// ³õÊ¼»¯µÚÒ»´ÎÉú³ÉµÄ·½¿éºÍÏÂÒ»´ÎÉú³ÉµÄ·½¿é
+		// ä¸€ç•ªæœ€åˆã®ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒæ“ä½œã™ã‚‹ãƒ–ãƒ­ãƒƒã‚¯ã‚’é¸ã¶
 		this.NowBlockState = this.CreateNewBlockState();
+		//é¸ã‚“ã ãƒ–ãƒ­ãƒƒã‚¯ã‹ã‚‰å…·ä½“çš„ãªï¼’æ¬¡å…ƒé…åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
 		this.NowBlockMap = this.getBlockMap(this.NowBlockState);
+		//ãã®æ¬¡ã«ãƒ¦ãƒ¼ã‚¶ãƒ¼ãŒæ“ä½œã™ã‚‹ãƒ–ãƒ­ãƒƒã‚¯ã‚’é¸ã¶
 		this.NextBlockState = this.CreateNewBlockState();
+		//é¸ã‚“ã ãƒ–ãƒ­ãƒƒã‚¯ã‹ã‚‰å…·ä½“çš„ãªï¼’æ¬¡å…ƒé…åˆ—ã‚’å–å¾—ã™ã‚‹ã€‚
 		this.NextBlockMap = this.getBlockMap(this.NextBlockState);
-		// ¼ÆËã·½¿éÎ»ÖÃ
 		this.NowBlockPos = this.CalNewBlockInitPos();
+		System.out.println("nextShape");
+		ShowMap(NowBlockMap);
+		point=find();
+		System.out.println("point");
+		System.out.println(point);
 		this.repaint();
 	}
-	
+	/**ã‚¿ã‚¤ãƒãƒ¼ã‚’ã‚¹ãƒˆãƒƒãƒ—ã™ã‚‹ã€‚
+	 * ã“ã‚Œã«ã‚ˆã‚Šã€å®šæœŸã‚¤ãƒ™ãƒ³ãƒˆãŒå‘¼ã°ã‚Œãªããªã‚‹*/
 	public void SetPause(boolean value){
 		this.IsPause = value;
 		if (this.IsPause){
@@ -169,75 +297,26 @@ public class Tetris extends JPanel {
 	}
 
 	/**
-	 * Ëæ»úÉú³ÉĞÂ·½¿é×´Ì¬
+	 *æ¬¡ã®ãƒ–ãƒ­ãƒƒã‚¯ã®ç•ªå·ã‚’é¸ã¶!
 	 */
 	private int CreateNewBlockState() {
 		int Sum = Tetris.Shape.length * 4;
-		return (int) (Math.random() * 1000) % Sum;
+		int ret= (int) (Math.random() * 1000) % Sum;
+		//System.out.println("state :"+ret);
+		return ret;
 	}
-
+	/**ãƒ–ãƒ­ãƒƒã‚¯ã®ç•ªå·ã‹ã‚‰ãƒ–ãƒ­ãƒƒã‚¯ã‚’å–å¾—ã™ã‚‹*/
 	private boolean[][] getBlockMap(int BlockState) {
 		int Shape = BlockState / 4;
 		int Arc = BlockState % 4;
-		System.out.println(BlockState + "," + Shape + "," + Arc);
+		//System.out.println(BlockState + "," + Shape + "," + Arc);
 		return this.RotateBlock(Tetris.Shape[Shape], Arc);
 	}
-
-	/**
-	 * Ô­Ëã·¨
-	 * 
-	 * Ğı×ª·½¿éMap£¬Ê¹ÓÃ¼«×ø±ê±ä»»,×¢ÒâÔ´¾ØÕó²»»á±»¸Ä±ä
-	 * Ê¹ÓÃround½â¾ödouble×ª»»µ½int¾«¶È¶ªÊ§µ¼ÖÂ½á¹û²»ÕıÈ·µÄÎÊÌâ
-	 * 
-	 * @param BlockMap
-	 *            ĞèÒªĞı×ªµÄ¾ØÕó
-	 * @param angel
-	 *            rad½Ç¶È£¬Ó¦¸ÃÎªpi/2µÄ±¶Êı
-	 * @return ×ª»»Íê³ÉºóµÄ¾ØÕóÒıÓÃ
-	 
-	private boolean[][] RotateBlock(boolean[][] BlockMap, double angel) {
-		// »ñÈ¡¾ØÕó¿í¸ß
-		int Heigth = BlockMap.length;
-		int Width = BlockMap[0].length;
-		// ĞÂ¾ØÕó´æ´¢½á¹û
-		boolean[][] ResultBlockMap = new boolean[Heigth][Width];
-		// ¼ÆËãĞı×ªÖĞĞÄ
-		float CenterX = (Width - 1) / 2f;
-		float CenterY = (Heigth - 1) / 2f;
-		// Öğµã¼ÆËã±ä»»ºóµÄÎ»ÖÃ
-		for (int i = 0; i < BlockMap.length; i++) {
-			for (int j = 0; j < BlockMap[i].length; j++) {
-				//¼ÆËãÏà¶ÔÓÚĞı×ªÖĞĞÄµÄ×ø±ê
-				float RelativeX = j - CenterX;
-				float RelativeY = i - CenterY;
-				float ResultX = (float) (Math.cos(angel) * RelativeX - Math.sin(angel) * RelativeY);
-				float ResultY = (float) (Math.cos(angel) * RelativeY + Math.sin(angel) * RelativeX);
-				// µ÷ÊÔĞÅÏ¢
-				//System.out.println("RelativeX:" + RelativeX + "RelativeY:" + RelativeY);
-				//System.out.println("ResultX:" + ResultX + "ResultY:" + ResultY);
-				
-				//½«½á¹û×ø±ê»¹Ô­
-				Point OrginPoint = new Point(Math.round(CenterX + ResultX), Math.round(CenterY + ResultY));
-				ResultBlockMap[OrginPoint.y][OrginPoint.x] = BlockMap[i][j];
-			}
-		}
-		return ResultBlockMap;
-	}
-	**/
-	
-	/**
-	 * 
-	 * @param shape 7ÖÖÍ¼ĞÎÖ®Ò»
-	 * @param time Ğı×ª´ÎÊı
-	 * @return
-	 * 
-	 * https://blog.csdn.net/janchin/article/details/6310654  ·­×ª¾ØÕó
-	 */
-	
+	/**ãƒ–ãƒ­ãƒƒã‚¯ã®å›è»¢ã‚’è¡Œã†ã€‚*/
 	private boolean[][] RotateBlock(boolean[][] shape, int time) {
-		if(time == 0) {
+		/*if(time == 0) {
 			return shape;
-		}
+		}*/
 		int heigth = shape.length;
 		int width = shape[0].length;
 		boolean[][] ResultMap = new boolean[heigth][width];
@@ -257,28 +336,20 @@ public class Tetris extends JPanel {
 	}
 
 	/**
-	 * ²âÊÔ·½·¨£¬²âÊÔĞı×ªº¯Êı
-	 * 
+	 * å›è»¢ã®ãƒ†ã‚¹ãƒˆã‚’è¡Œã£ã¦ã„ã‚‹ã£ã½ã„
 	 * @param args
 	 */
-	static public void main(String... args) {
+	/*static public void main(String... args) {
 		boolean[][] SrcMap = Tetris.Shape[3];
 		Tetris.ShowMap(SrcMap);
-		/*
-		for (int i = 0;i < 7;i ++){
-			System.out.println(i);
-			Tetris.ShowMap(Tetris.Shape[i]);
-		}
-		*/
-		
-		Tetris tetris = new Tetris();
+		Tetris tetris = new Tetris(0);
 		boolean[][] result = tetris.RotateBlock(SrcMap, 1);
 		Tetris.ShowMap(result);
-		
-	}
-	
+
+	}*/
+
 	/**
-	 * ²âÊÔ·½·¨£¬ÏÔÊ¾¾ØÕó
+	 * ï¼’æ¬¡å…ƒé…åˆ—ã®å½¢å¼ã§æ¸¡ã•ã‚ŒãŸãƒ–ãƒ­ãƒƒã‚¯ã®å½¢ã‚’å‡ºåŠ›ã™ã‚‹
 	 * @param SrcMap
 	 */
 	static private void ShowMap(boolean[][] SrcMap){
@@ -286,72 +357,85 @@ public class Tetris extends JPanel {
 		for (int i = 0;i < SrcMap.length;i ++){
 			for (int j = 0;j < SrcMap[i].length;j ++){
 				if (SrcMap[i][j])
-					System.out.print("*");
+					System.out.print("â– ");
 				else
-					System.out.print(" ");
+					System.out.print("â–¡");
 			}
 			System.out.println();
 		}
 		System.out.println("-----");
 	}
+	static private boolean[][] copy2d(boolean[][] src){
+		boolean[][] result=new boolean[src.length][src[0].length];
+		for(int i=0;i<src.length;i++) {
+			for(int a=0;a<src[i].length;a++) {
+				result[i][a]=src[i][a];
+			}
+		}
+		return result;
+	}
 
 	/**
-	 * »æÖÆÓÎÏ·½çÃæ
+	 * ç”»é¢ã®æç”»æç”»ã‚’æ‹…å½“ã™ã‚‹ãƒ¡ã‚½ãƒƒãƒ‰ã€‚
+	 * nowBlockMapã®æƒ…å ±ã‚ˆã‚Šæç”»ã‚’ã™ã‚‹ã€‚
 	 */
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		// »­Ç½
-		for (int i = 0; i < Tetris.BlockHeigth + 1; i++) {
-			g.drawRect(0 * Tetris.BlockSize, i * Tetris.BlockSize, Tetris.BlockSize, Tetris.BlockSize);
-			g.drawRect((Tetris.BlockWidth + 1) * Tetris.BlockSize, i * Tetris.BlockSize, Tetris.BlockSize,
-					Tetris.BlockSize);
-		}
-		for (int i = 0; i < Tetris.BlockWidth; i++) {
-			g.drawRect((1 + i) * Tetris.BlockSize, Tetris.BlockHeigth * Tetris.BlockSize, Tetris.BlockSize,
-					Tetris.BlockSize);
-		}
-		// »­µ±Ç°·½¿é
-		for (int i = 0; i < this.NowBlockMap.length; i++) {
-			for (int j = 0; j < this.NowBlockMap[i].length; j++) {
-				if (this.NowBlockMap[i][j])
-					g.fillRect((1 + this.NowBlockPos.x + j) * Tetris.BlockSize, (this.NowBlockPos.y + i) * Tetris.BlockSize,
-						Tetris.BlockSize, Tetris.BlockSize);
-			}
-		}
-		// »­ÒÑ¾­¹Ì¶¨µÄ·½¿é
-		for (int i = 0; i < Tetris.BlockHeigth; i++) {
-			for (int j = 0; j < Tetris.BlockWidth; j++) {
-				if (this.BlockMap[i][j])
-					g.fillRect(Tetris.BlockSize + j * Tetris.BlockSize, i * Tetris.BlockSize, Tetris.BlockSize,
+		if(offset!=50) {
+			//   Ç½
+			for (int i = 0; i < Tetris.BlockHeigth + 1; i++) {
+				g.drawRect(0 * Tetris.BlockSize, i * Tetris.BlockSize, Tetris.BlockSize, Tetris.BlockSize);
+				g.drawRect((Tetris.BlockWidth + 1) * Tetris.BlockSize, i * Tetris.BlockSize, Tetris.BlockSize,
 						Tetris.BlockSize);
 			}
-		}
-		//»æÖÆÏÂÒ»¸ö·½¿é
-		for (int i = 0;i < this.NextBlockMap.length;i ++){
-			for (int j = 0;j < this.NextBlockMap[i].length;j ++){
-				if (this.NextBlockMap[i][j])
-					g.fillRect(190 + j * Tetris.BlockSize, 30 + i * Tetris.BlockSize, Tetris.BlockSize, Tetris.BlockSize);
+			for (int i = 0; i < Tetris.BlockWidth; i++) {
+				g.drawRect((1 + i) * Tetris.BlockSize, Tetris.BlockHeigth * Tetris.BlockSize, Tetris.BlockSize,
+						Tetris.BlockSize);
 			}
-		}
-		// »æÖÆÆäËûĞÅÏ¢
-		g.drawString("ÓÎÏ··ÖÊı:" + this.Score, 190, 10);
-		for (int i = 0;i < Tetris.AuthorInfo.length;i ++){
-			g.drawString(Tetris.AuthorInfo[i], 190, 100 + i * 20);
-		}
-		
-		//»æÖÆÔİÍ£
-		if (this.IsPause){
-			g.setColor(Color.white);
-			g.fillRect(70, 100, 50, 20);
-			g.setColor(Color.black);
-			g.drawRect(70, 100, 50, 20);
-			g.drawString("PAUSE", 75, 113);
+			//     Ç°    
+			for (int i = 0; i < this.NowBlockMap.length; i++) {
+				for (int j = 0; j < this.NowBlockMap[i].length; j++) {
+					if (this.NowBlockMap[i][j])
+						g.fillRect((1 + this.NowBlockPos.x + j) * Tetris.BlockSize, (this.NowBlockPos.y + i) * Tetris.BlockSize,
+								Tetris.BlockSize, Tetris.BlockSize);
+				}
+			}
+			//    Ñ¾  Ì¶  Ä·   
+			for (int i = 0; i < Tetris.BlockHeigth; i++) {
+				for (int j = 0; j < Tetris.BlockWidth; j++) {
+					if (this.BlockMap[i][j])
+						g.fillRect(Tetris.BlockSize + j * Tetris.BlockSize, i * Tetris.BlockSize, Tetris.BlockSize,
+								Tetris.BlockSize);
+				}
+			}
+			//      Ò»      
+			for (int i = 0;i < this.NextBlockMap.length;i ++){
+				for (int j = 0;j < this.NextBlockMap[i].length;j ++){
+					if (this.NextBlockMap[i][j])
+						g.fillRect(190 + j * Tetris.BlockSize, 30 + i * Tetris.BlockSize, Tetris.BlockSize, Tetris.BlockSize);
+				}
+			}
+			//           Ï¢
+			g.drawString("ã‚¹ã‚³ã‚¢:" + this.Score, 190, 10);
+			for (int i = 0;i < Tetris.AuthorInfo.length;i ++){
+				g.drawString(Tetris.AuthorInfo[i], 190, 100 + i * 20);
+			}
+
+			//      Í£
+			if (this.IsPause){
+				g.setColor(Color.white);
+				g.fillRect(70, 100, 50, 20);
+				g.setColor(Color.black);
+				g.drawRect(70, 100, 50, 20);
+				g.drawString("PAUSE", 75, 113);
+			}
 		}
 	}
 	/**
+	 * ç©ã¿ä¸Šã’ã‚‰ã‚ŒãŸãƒ–ãƒ­ãƒƒã‚¯ã‚’ã‚¹ã‚­ãƒ£ãƒ³ã—ã€ãã‚ã£ã¦ã‚‹ãƒ©ã‚¤ãƒ³ã‚’å‰Šé™¤ã™ã‚‹ã€‚
 	 * 
-	 * @return
+	 * @return ãã‚ã£ãŸãƒ©ã‚¤ãƒ³ã«ã‚ˆã‚‹å¾—ç‚¹ã‚’è¿”å´ã™ã‚‹ã€‚
 	 */
 	private int ClearLines(){
 		int lines = 0;
@@ -373,22 +457,71 @@ public class Tetris extends JPanel {
 		}
 		return lines;
 	}
-	
-	// ¶¨Ê±Æ÷¼àÌı
+
+	/**ç”»é¢ã®æ›´æ–°æ™‚ã«æ¯å›å‘¼ã°ã‚Œã‚‹ãƒªã‚¹ãƒŠãƒ¼ã€‚
+	 * å„ç¨®åˆ¤å®šç­‰ã‚’ã“ã“ã‹ã‚‰è¡Œã†ã€‚
+	 * ã‚²ãƒ¼ãƒ ã‚ªãƒ¼ãƒãƒ¼æ™‚ã«ã¯ã€ãƒ©ãƒ³ã‚­ãƒ³ã‚°ã‚µãƒ¼ãƒãƒ¼ã«å¾—ç‚¹ã‚’é€ä¿¡ã—ã€ãã“ã‹ã‚‰é †ä½ã‚’å–å¾—ã™ã‚‹
+	 *é€šä¿¡ã«ã¤ã„ã¦ï¼ï¼
+						TCPã®25565ãƒãƒ¼ãƒˆï¼ˆåƒ•ã®å¥½ããªãƒã‚¤ã‚¯ãƒ©ã®ã‚µãƒ¼ãƒãƒ¼ã®ãƒ‡ãƒ•ã‚©ãƒ«ãƒˆãƒãƒ¼ãƒˆç•ªå·ã‚’ä½¿ç”¨ã—ã¦ã¾ã™ï¼ï¼‰
+						å„ç¨®ä¾‹å¤–å‡¦ç†ã¯æœ€ä½é™ã®å®Ÿè£…ã«ãªã‚Šã¾ã™ã€‚
+	 */
 	ActionListener TimerListener = new ActionListener() {
-		
+
 		@Override
 		public void actionPerformed(ActionEvent arg0) {
-			// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
+			// TODO  Ô¶    ÉµÄ·      
 			if (Tetris.this.IsTouch(Tetris.this.NowBlockMap, new Point(Tetris.this.NowBlockPos.x, Tetris.this.NowBlockPos.y + 1))){
-				if (Tetris.this.FixBlock()){
+				
+				boolean fb=Tetris.this.FixBlock(BlockMap,NowBlockMap,NowBlockPos);
+				//System.out.println("çµæœ");
+					//ShowMap(BlockMap);
+				if (fb){
+					
 					Tetris.this.Score += Tetris.this.ClearLines() * 10;
 					Tetris.this.getNextBlock();
+					
 				}
 				else{
-					JOptionPane.showMessageDialog(Tetris.this.getParent(), "GAME OVER");
+					//JOptionPane.showMessageDialog(Tetris.this.getParent(), "GAME OVER");
+					/*try {
+						Socket s=new Socket("localhost",25565);
+						Thread th=new Thread() {
+							@Override
+							public void run() {
+								try {
+									BufferedReader br=new BufferedReader(new InputStreamReader(s.getInputStream()));
+									String str;
+									s.getOutputStream().write(("submit,"+Tetris.this.Score+"\r\n").getBytes());
+									s.getOutputStream().flush();
+									while((str=br.readLine())!=null) {
+										System.out.println("message :"+str);
+										if(str.startsWith("r,")) {
+											String[] args=str.split(",");
+											zyuni=args[1];
+										}
+										break;
+									}
+									s.close();
+
+								}catch(Exception e) {e.printStackTrace();}
+							}
+						};
+						th.start();
+						th.join();
+						//ã‚¹ã‚³ãƒ¼ãƒ—ãŒthã‚¹ãƒ¬ãƒƒãƒ‰ã®å†…éƒ¨ã ã¨æç”»ãŒæ­£å¸¸ã«è¡Œã‚ã‚Œãªã„ãŸã‚ã€ãƒãƒƒãƒ—ã‚¢ãƒƒãƒ—ã¯ä»¥ä¸‹ã§è¡Œã†
+						if(!zyuni.equals("")) {
+							JOptionPane.showMessageDialog(Tetris.this,
+									zyuni+"ä½ã«å…¥è³ã—ã¾ã—ãŸï¼");
+						}else {
+							JOptionPane.showMessageDialog(Tetris.this,"ãƒ©ãƒ³ã‚­ãƒ³ã‚°ã‚µãƒ¼ãƒãƒ¼ã¨ã®é€šä¿¡ã§ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ");
+						}
+						System.out.println("æ¥ç¶šçµ‚äº†ã€‚");
+					}catch(Exception e) {JOptionPane.showMessageDialog(Tetris.this,
+							"ãƒ©ãƒ³ã‚­ãƒ³ã‚°ã‚µãƒ¼ãƒãƒ¼ã«æ¥ç¶šã§ãã¾ã›ã‚“ã§ã—ãŸ");e.printStackTrace();
+					}*/
 					Tetris.this.Initial();
 				}
+
 			}
 			else{
 				Tetris.this.NowBlockPos.y ++;
@@ -396,17 +529,18 @@ public class Tetris extends JPanel {
 			Tetris.this.repaint();
 		}
 	};
-	
-	//°´¼ü¼àÌı
-	java.awt.event.KeyListener KeyListener = new java.awt.event.KeyListener(){
+
+	//ã‚­ãƒ¼ãƒœãƒ¼ãƒ‰ã‹ã‚‰ã®å…¥åŠ›ã‚’å—ã‘ä»˜ã‘ã‚‹ãƒªã‚¹ãƒŠãƒ¼ã€‚å…¥åŠ›ãŒã‚ã‚‹ãŸã³ã«æç”»ã—ãªãŠã™ã€‚
+	/*java.awt.event.KeyListener KeyListener = new java.awt.event.KeyListener(){
 
 		@Override
 		public void keyPressed(KeyEvent e) {
-			// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
+			// TODO  Ô¶    ÉµÄ·      
 			if (!IsPause){
 				Point DesPoint;
-				switch (e.getKeyCode()) {
-				case KeyEvent.VK_DOWN:
+				//switch (e.getKeyCode()) {
+			switch(new Random().nextInt(40)+37)	{
+			case KeyEvent.VK_DOWN:
 					DesPoint = new Point(Tetris.this.NowBlockPos.x, Tetris.this.NowBlockPos.y + 1);
 					if (!Tetris.this.IsTouch(Tetris.this.NowBlockMap, DesPoint)){
 						Tetris.this.NowBlockPos = DesPoint;
@@ -438,15 +572,15 @@ public class Tetris extends JPanel {
 
 		@Override
 		public void keyReleased(KeyEvent e) {
-			// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-			
+			// TODO  Ô¶    ÉµÄ·      
+
 		}
 
 		@Override
 		public void keyTyped(KeyEvent e) {
-			// TODO ×Ô¶¯Éú³ÉµÄ·½·¨´æ¸ù
-			
+			// TODO  Ô¶    ÉµÄ·      
+
 		}
-		
-	};
+
+	};*/
 }
