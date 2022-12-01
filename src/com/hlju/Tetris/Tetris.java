@@ -20,7 +20,7 @@ public class Tetris extends JPanel {
 	//順位の管理
 	static String zyuni="";
 	/**画面の更新頻度*/
-	private static final int TimeDelay = 100;
+	private static final int TimeDelay = 10;
 	/**次のブロック下に表示される著作者情報*/
 	private static final String[] AuthorInfo = {
 			"©","HelloClydeと坂島"
