@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"com.hlju.Tetris","l":"BlockV4"},{"p":"com.hlju.Tetris","l":"BlockV6"},{"p":"com.hlju.Tetris","l":"Tetris"},{"p":"com.hlju.Tetris","l":"TetrisApp"}];updateSearchResults();

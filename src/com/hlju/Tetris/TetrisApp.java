@@ -11,7 +11,6 @@ import javax.swing.JOptionPane;
 /**テトリスを表示するフレームおよび起動するメインメソッドが含まれたクラス*/
 public class TetrisApp extends JFrame {
 	//どこからも参照されません。
-	//gitted from https://github.com/HelloClyde/Tetris-Swing
 	private static final long serialVersionUID = 8995729671326316569L;
 	/**メインボード*/
 	Tetris[] tetris = new Tetris[21];

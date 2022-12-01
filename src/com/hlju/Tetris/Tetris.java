@@ -5,13 +5,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map.Entry;
-import java.util.Random;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 /**テトリスのコンテンツを表示するコンポーネント*/
@@ -58,7 +52,7 @@ public class Tetris extends JPanel {
 	private int offset=0;
 	private int NowBlockState;
 
-	/*タイマーインスタンス・中断したりするためにこのスコープで宣言する必要があるようだ*/
+	/**タイマーインスタンス・中断したりするためにこのスコープで宣言する必要があるようだ*/
 	private Timer timer;
 
 	/*導いた最適解*/
@@ -66,7 +60,8 @@ public class Tetris extends JPanel {
 	/*導いた手順を順番に実行するためのインデックス*/
 	Point controllIndex=new Point();
 	/**盤面を評価するための評価関数
-	 * 上に行くほど減点を高くする。*/
+	 * 上に行くほど減点を高くする。
+	 * @author 坂島*/
 	int analyze(boolean BlockMap[][]) {
 		int score=BlockMap.length*BlockMap[0].length;
 		for(int i=0;i<BlockMap.length;i++) {
@@ -78,6 +73,9 @@ public class Tetris extends JPanel {
 		}
 		return score;
 	}
+	
+	/**評価関数をもとに最適な位置と角度を求める。
+	 * @author 坂島*/
 	Point find() {
 		int max=-(BlockMap.length*BlockMap[0].length*BlockMap.length);
 		int max_x=0;
