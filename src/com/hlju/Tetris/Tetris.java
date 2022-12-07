@@ -5,6 +5,9 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -73,7 +76,7 @@ public class Tetris extends JPanel {
 		}
 		return score;
 	}
-	
+
 	/**評価関数をもとに最適な位置と角度を求める。
 	 * @author 坂島*/
 	Point find() {
@@ -81,27 +84,62 @@ public class Tetris extends JPanel {
 		int max_x=0;
 		int update=0;
 		int max_y=0;
-		for(int i=CalNewBlockInitPos().x;i<BlockMap[i].length;i++){//左端から右端
-			for(int a=1;a<4;a++) {
-				boolean[][] _shape = copy2d(NowBlockMap);
-				_shape=RotateBlock(_shape, a);
-				int j=0;
-				boolean[][] _BlockMap =copy2d(BlockMap);
-				if(!IsTouch(_shape, new Point(i,0))) {
-					
-					for(;!IsTouch(_shape,new Point(i,j+1));j++);
-					FixBlock(_BlockMap,_shape,new Point(i,j));
-					int score=analyze(_BlockMap);
-					System.out.println(max+"/"+(BlockMap.length*BlockMap[0].length));
-					if(max<score) {
-						max=score;
-						max_x=i;
-						max_y=a;
-						update++;
-						//System.out.println("提案");
-						//ShowMap(_BlockMap);
+		String mapkey=mapToString(BlockMap);
+		//手と評価
+		Map<String,Integer> teList=new HashMap<String,Integer>();
+		for(int i=1;i<50;i++) {
+			boolean[][] _shape = copy2d(NowBlockMap);
+			boolean[][] _BlockMap =copy2d(BlockMap);
+			int position_x=BlockWidth/2;
+			int position_y=0;
+			Random r=new Random();
+			String te="";
+			while(!IsTouch(_shape,new Point(position_x,position_y+1))) {
+				switch(r.nextInt(4)) {
+				case 0:
+					if(!IsTouch(_shape,new Point(position_x+1,position_y))){
+						position_x+=1;
+						te+="0";
 					}
+					break;
+				case 1:
+					if(!IsTouch(_shape,new Point(position_x,position_y+1))){
+						position_y+=1;
+						te+="1";
+					}
+					break;
+				case 2:
+					if(!IsTouch(_shape,new Point(position_x-1,position_y))){
+						position_x-=1;
+						te+="2";
+					}
+					break;
+				case 3:
+					boolean result[][] =RotateBlock(_shape, 1);
+					if(!IsTouch(result,new Point(position_x,position_y))){
+						_shape=RotateBlock(_shape, 1);
+						te+="0";
+					}
+					break;
 				}
+			}
+			FixBlock(_BlockMap, _shape,new Point(position_x,position_y));
+			teList.put(te,analyze(_BlockMap));
+			//このままでは、限界近くなったときに底につくことを避けるせいでどの手も実行されないため一生探索が終わらない事がある。
+			//そのため、強制的に１段下に下ろす処理をもとに戻してもいいかもしれない。
+			//ランダムに下につくまで動かす処理完了。
+//=======ここから下を実装する。
+			for(;;j++);
+			FixBlock(_BlockMap,_shape,new Point(i,j));
+			int score=analyze(_BlockMap);
+			System.out.println(max+"/"+(BlockMap.length*BlockMap[0].length));
+			if(max<score) {
+				max=score;
+				max_x=i;
+				max_y=a;
+				update++;
+				//System.out.println("提案");
+				//ShowMap(_BlockMap);
 			}
 		}
 		controllIndex=new Point(0,0);
@@ -144,7 +182,7 @@ public class Tetris extends JPanel {
 								if (!Tetris.this.IsTouch(TurnBlock, Tetris.this.NowBlockPos)){
 									Tetris.this.NowBlockMap = TurnBlock;
 								}
-								
+
 							}
 							try {
 								Thread.sleep(10);
@@ -435,6 +473,15 @@ public class Tetris extends JPanel {
 	 * 
 	 * @return そろったラインによる得点を返却する。
 	 */
+	private String mapToString(boolean[][] map) {
+		StringBuilder sb=new StringBuilder();
+		for(int i=0;i<map.length;i++) {
+			for(int a=0;a<map[i].length;a++) {
+				sb.append(map[i][a]?"■":"□");
+			}
+		}
+		return sb.toString();
+	}
 	private int ClearLines(){
 		int lines = 0;
 		for (int i = 0;i < this.BlockMap.length;i ++){
@@ -469,15 +516,15 @@ public class Tetris extends JPanel {
 		public void actionPerformed(ActionEvent arg0) {
 			// TODO  Զ    ɵķ      
 			if (Tetris.this.IsTouch(Tetris.this.NowBlockMap, new Point(Tetris.this.NowBlockPos.x, Tetris.this.NowBlockPos.y + 1))){
-				
+
 				boolean fb=Tetris.this.FixBlock(BlockMap,NowBlockMap,NowBlockPos);
 				//System.out.println("結果");
-					//ShowMap(BlockMap);
+				//ShowMap(BlockMap);
 				if (fb){
-					
+
 					Tetris.this.Score += Tetris.this.ClearLines() * 10;
 					Tetris.this.getNextBlock();
-					
+
 				}
 				else{
 					//JOptionPane.showMessageDialog(Tetris.this.getParent(), "GAME OVER");
@@ -522,7 +569,8 @@ public class Tetris extends JPanel {
 
 			}
 			else{
-				Tetris.this.NowBlockPos.y ++;
+				//Tetris.this.NowBlockPos.y ++;
+				//シュミレーションが難しくなるため、自動更新は行わない。
 			}
 			Tetris.this.repaint();
 		}
